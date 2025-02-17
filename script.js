@@ -1,19 +1,30 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const foodForm = document.getElementById("foodForm");
-    const foodTable = document.getElementById("foodTable");
     const foodSearch = document.getElementById("foodSearch");
     const foodSuggestions = document.getElementById("foodSuggestions");
-    
+
     let foodDatabase = [];
-    
-    // Load food data from Google Sheets (dummy URL for now)
-    fetch("https://your-google-sheets-api-url")
-        .then(response => response.json())
+
+    // Replace with your Google Sheet ID
+    const SHEET_ID = "1DTFFkqGEeJrFpUpwwySLRr_p-LRfOVjZfjEy9tdN3J0";
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/1DTFFkqGEeJrFpUpwwySLRr_p-LRfOVjZfjEy9tdN3J0/gviz/tq?tqx=out:json`;
+
+    // Fetch food data from Google Sheets
+    fetch(https://docs.google.com/spreadsheets/d/1DTFFkqGEeJrFpUpwwySLRr_p-LRfOVjZfjEy9tdN3J0/gviz/tq?tqx=out:json)
+        .then(response => response.text())
         .then(data => {
-            foodDatabase = data;
+            const jsonData = JSON.parse(data.substring(47, data.length - 2)); // Clean Google Sheets response
+            const rows = jsonData.table.rows;
+            
+            foodDatabase = rows.map(row => ({
+                name: row.c[0].v, // First column: Food Name
+                calories: row.c[1].v, // Second column: Calories
+                protein: row.c[2].v, // Third column: Protein
+                carbs: row.c[3].v, // Fourth column: Carbs
+                fats: row.c[4].v // Fifth column: Fats
+            }));
         });
 
-    // Search for food
+    // Search functionality
     foodSearch.addEventListener("input", function () {
         const query = foodSearch.value.toLowerCase();
         foodSuggestions.innerHTML = "";
@@ -29,32 +40,5 @@ document.addEventListener("DOMContentLoaded", function () {
                 foodSuggestions.appendChild(div);
             });
         }
-    });
-
-    foodForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        const food = foodSearch.value;
-        const quantity = document.getElementById("quantity").value;
-        const unit = document.getElementById("unit").value;
-        const date = document.getElementById("date").value;
-        const time = document.getElementById("time").value;
-
-        if (!food || !quantity) return;
-
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-            <td>${date}</td>
-            <td>${time}</td>
-            <td>${food}</td>
-            <td>${quantity} ${unit}</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        `;
-
-        foodTable.appendChild(newRow);
-        foodForm.reset();
     });
 });
